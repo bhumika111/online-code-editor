@@ -1,26 +1,21 @@
 import React from "react";
-import { Controlled as ControlledEditor } from "react-codemirror2";
-import "codemirror/lib/codemirror.css";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { html } from "@codemirror/lang-html";
+import { css } from "@codemirror/lang-css";
 import "codemirror/theme/material.css";
-import "codemirror/mode/xml/xml";
-import "codemirror/mode/css/css";
-import "codemirror/mode/javascript/javascript";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExpandAlt, faCompressAlt } from "@fortawesome/free-solid-svg-icons";
 
 export default function Editor(props) {
-  const {
-    language,
-    displayName,
-    value,
-    onChange,
-    open,
-    onExpandCollapse
-  } = props;
+  const { language, displayName, value, onChange, open, onExpandCollapse } = props;
 
-  function handleChange(editor, data, value) {
-    onChange(value);
-  }
+  // Decide the language extension for CodeMirror
+  const getLanguageExtension = () => {
+    if (language === "html") return html();
+    if (language === "css") return css();
+    if (language === "js") return javascript();
+  };
 
   return (
     <div className={`editor-container ${open ? "" : "collapsed"}`}>
@@ -39,17 +34,14 @@ export default function Editor(props) {
           <FontAwesomeIcon icon={open ? faCompressAlt : faExpandAlt} />
         </button>
       </div>
-      <ControlledEditor
-        onBeforeChange={handleChange}
+
+      <CodeMirror
         value={value}
+        height="300px"
+        extensions={[getLanguageExtension()]}
+        theme="material"
+        onChange={(value) => onChange(value)}
         className={`code-mirror-wrapper ${language}-editor`}
-        options={{
-          lineWrapping: true,
-          lint: true,
-          mode: language === "html" ? "xml" : language,
-          theme: "material",
-          lineNumbers: true
-        }}
       />
     </div>
   );
